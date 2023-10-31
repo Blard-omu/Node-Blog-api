@@ -48,7 +48,7 @@ const getAllBlogs = async (req, res) => {
 
 // Get a specific blog post by ID
 const getBlogById = async (req, res) => {
-  try {
+  try { 
     const { _id } = req.params;
     const blog = await Blog.findById(_id);
 
@@ -77,19 +77,21 @@ const updateBlog = async (req, res) => {
 
     if (imageFile) {
       const imageResult = await cloudinary.uploader.upload(imageFile.path);
-      existingBlog.imageUrl = imageResult.secure_url;
+      existingBlog.imageUrl = imageResult.secure_url; 
     }
 
     existingBlog.title = updatedBlogData.title || existingBlog.title;
-    existingBlog.content = updatedBlogData.content || existingBlog.content;
+     existingBlog.content = updatedBlogData.content || existingBlog.content;
 
     const updatedBlog = await existingBlog.save();
 
     res.json({ message: 'Blog updated successfully', blog: updatedBlog });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Failed to update blog', error: error.message });
   }
 };
+
 
 // Delete a specific blog post
 const deleteBlog = async (req, res) => {
