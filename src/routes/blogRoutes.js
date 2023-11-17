@@ -2,7 +2,7 @@
 import express from 'express';
 import { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog } from '../controllers/blogController.js';
 import upload from '../services/multer.js'
-import requireSignedIn from '../middlewares/auth.js';
+import {requireBlogAuthor, requireSignedIn} from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -15,9 +15,10 @@ router.get('/blogs/all', getAllBlogs);
 router.get('/blog/:_id', getBlogById);
 
 // Endpoint to update a blog (Update)
-router.put('/blog/:_id', updateBlog);
+router.patch('/blog/:_id', requireSignedIn, requireBlogAuthor, upload.single('imageUrl'), updateBlog);
 
 // Endpoint to delete a blog (Delete)
-router.delete('/blog/:_id', deleteBlog);
+router.delete('/blog/:_id', requireSignedIn, requireBlogAuthor, deleteBlog);
 
 export default router;
+ 
