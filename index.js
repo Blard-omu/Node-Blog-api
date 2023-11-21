@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve Swagger UI at /api-docs
-app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
+app.use('/', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
 
 
 // google oAuth

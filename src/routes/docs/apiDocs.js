@@ -25,7 +25,7 @@ const apiDocumentation = {
     version: "1.3.0",
     title: "BLOGG REST API - Documentation",
     description:
-      "Node express blogg api built by JULY CLASS. Contributors includes: David, Success, Tony, Richard, Treasure, Victor, Segun, Larry, John, Tobi, Saedat, Hussiena, Nonso. The BLOGG has the following key features: ",
+      "Node express blogg api built by JULY CLASS. Contributors includes: David, Success, Tony, Richard, Treasure, Victor, Segun, Larry, John, Tobi, Saedat, Hussiena, Nonso. The BLOGG has the following key features: user can register and login, create blog post, edit blog post, delete blog post, user can also update profile, search for blog posts, blog posts pagination, and several other features. I'll like to specially acknowledge your efforts and dedication to the success of this project.",
     termsOfService: "https://mysite.com/terms",
     contributors:
       "David, Success, Tony, Richard, Treasure, Victor, Segun, Larry, John, Tobi, Saedat, Hussiena, Nonso",
@@ -79,7 +79,7 @@ const apiDocumentation = {
     "/users": {
       get: getUsers,
     },
-    "/users/_id": {
+    "/user/_id": {
       delete: deleteUser,
       get: getUser,
       patch: updateUser,
