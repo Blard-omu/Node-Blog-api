@@ -1,6 +1,6 @@
 // routes/blogRoutes.js
 import express from 'express';
-import { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog } from '../controllers/blogController.js';
+import { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog, searchBlog } from '../controllers/blogController.js';
 import upload from '../services/multer.js'
 import {requireBlogAuthor, requireSignedIn} from '../middlewares/auth.js';
 
@@ -19,6 +19,8 @@ router.patch('/blog/:_id', requireSignedIn, requireBlogAuthor, upload.single('im
 
 // Endpoint to delete a blog (Delete)
 router.delete('/blog/:_id', requireSignedIn, requireBlogAuthor, deleteBlog);
+
+router.get('/blogs/search', searchBlog)
 
 export default router;
  

@@ -6,7 +6,10 @@ import morgan from "morgan";
 import blogRouter from "./src/routes/blogRoutes.js";
 import authRouter from "./src/routes/authRoutes.js";
 import userRouter from "./src/routes/userRoutes.js";
+import passport from 'passport';
+import session from 'express-session';
 import cors from "cors";
+import "./src/controllers/socialAuth/passport.js"
 
 const app = express();
 dotenv.config();
@@ -20,10 +23,37 @@ app.use(morgan('dev'))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 
+app.use(
+  session({
+    secret: process.env.GOOGLE_SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 //Routes
 app.use('/', userRouter); 
 app.use('/', authRouter); 
+app.use('/auth', authRouter); 
 app.use('/', blogRouter);
+// After app.use(passport.initialize()) and app.use(passport.session())
+app.get('/profile', (req, res) => {
+  if (req.isAuthenticated()) {
+    console.log(req.user);
+    res.send(`Welcome back blogg page`);
+  } else {
+    // Handle unauthenticated access
+    res.redirect('/login'); 
+  }
+});
+
+
+
+
+// console.log("Session secret: ", process.env.GOOGLE_SESSION_SECRET);
 
 
 

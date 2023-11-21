@@ -1,12 +1,12 @@
 import { cloudinary } from '../services/cloudinaryConfig.js';
 import Blog from '../models/Blog.js';
 import User from '../models/User.js';
+import { calculateReadingTime } from '../services/helpers.js';
 
 
- // Create a new blog post
 const createBlog = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
+    const { title, content, author, category, tags } = req.body;
     const imageFile = req.file;
 
     // Find the user by their username
@@ -19,11 +19,20 @@ const createBlog = async (req, res) => {
     // Upload the image to Cloudinary
     const imageResult = await cloudinary.uploader.upload(imageFile.path);
 
+    // Calculate read time using the provided function
+    const readTime = calculateReadingTime(content);
+
+    const blogTags = typeof tags === 'string' ? tags.split(",") : tags;
+
+
     const blog = new Blog({
       title,
       content,
       author: user.username, 
       imageUrl: imageResult.secure_url,
+      read_time: readTime,
+      tags: blogTags,
+      category
     });
 
     // Save the new blog to the database
@@ -35,13 +44,18 @@ const createBlog = async (req, res) => {
   }
 };
 
+
 // Get all blog posts based on the state (published or draft), with pagination
 const getAllBlogs = async (req, res) => {
   const page = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 6; 
-  const { state } = req.query;
+  const { state, author } = req.query;
   
   const query = state ? { state } : {}; 
+
+  if (author) {
+    query.author = author;
+  } 
 
   try {
     const totalPosts = await Blog.countDocuments(query);
@@ -134,4 +148,28 @@ const deleteBlog = async (req, res) => {
   }
 };
 
-export { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog };
+
+const searchBlog = async (req, res) => {
+  const { term } = req.query;
+
+  try {
+    // For case insensitive
+    const searchRegex = new RegExp(term, 'i');
+
+    const blogs = await Blog.find({
+      $or: [
+        { author: searchRegex },
+        { title: searchRegex },
+      ],
+    });
+
+    res.json({ blogs });
+  } catch (error) {
+    console.error('Error searching blogs:', error);
+    res.status(500).json({ error: 'Failed to search blogs', errorMsg: error.message });
+  }
+};
+
+
+
+export { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog, searchBlog };

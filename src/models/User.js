@@ -3,16 +3,17 @@ import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true },
+    googleId: { type: String },
+    username: { type: String },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
   },
   { timestamps: true }
 );
 
 // write function to compare passwords
-userSchema.methods.comparePassword = async function(password){
-    return bcrypt.compare(password, this.password)
+userSchema.methods.comparePassword = async function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
 const User = mongoose.model("User", userSchema);
