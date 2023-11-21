@@ -9,6 +9,8 @@ import authRouter from "./src/routes/authRoutes.js";
 import userRouter from "./src/routes/userRoutes.js";
 import passport from 'passport';
 import session from 'express-session';
+import swaggerUi from 'swagger-ui-express';
+import { apiDocumentation } from "./src/routes/docs/apiDocs.js";
 import cors from "cors";
 import "./src/controllers/socialAuth/passport.js"
 
@@ -24,7 +26,7 @@ let corsOptions = {
 
 const blogsApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, 
+  max: 200, 
   message: 'Too many requests from this IP, please try again later.',
 });
 
@@ -34,7 +36,11 @@ app.use(morgan('dev'))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 
+// Serve Swagger UI at /api-docs
+app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
+
+
+// google oAuth
 app.use(
   session({
     secret: process.env.GOOGLE_SESSION_SECRET,
@@ -49,7 +55,8 @@ app.use(passport.session());
 app.use('/', userRouter); 
 app.use('/', authRouter); 
 app.use('/auth', authRouter); 
-app.use('/',blogsApiLimiter, blogRouter);
+app.use('/', blogsApiLimiter, blogRouter);
+
 
 // After app.use(passport.initialize()) and app.use(passport.session())
 app.get('/profile', (req, res) => {
@@ -60,6 +67,8 @@ app.get('/profile', (req, res) => {
     res.redirect('/login'); 
   }
 });
+
+
 
 
 

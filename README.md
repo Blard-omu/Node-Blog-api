@@ -108,8 +108,10 @@ API_SECRET=your-cloudinary-api-secret
 #### User Schema (`User.js`)
 
 ```javascript
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+// const mongoose = require("mongoose");
+// const bcrypt = require("bcrypt");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
@@ -124,13 +126,14 @@ userSchema.methods.checkPassword = async function (password) {
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User;
+export { User };
 ```
 
 #### Blog Schema (`Blog.js`)
 
 ```javascript
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -141,7 +144,7 @@ const blogSchema = new mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema);
 
-module.exports = Blog;
+export { Blog };
 
 ```
 
@@ -150,22 +153,60 @@ module.exports = Blog;
 
 #### User Controller (`userController.js`)
 ```javascript
-const User = require('../models/User');
+// const User = require('../models/User');
+import User from '../models/User';
 
-// Implement user controller functions (e.g., user registration, login, profile)
+const register = async (req, res) => {
+  try{
+    // define the body fields
+    const { username, email, password } = req.body;
 
-// Example user registration controller
-const registerUser = async (req, res) => {
-  try {
-    // Your registration logic here
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to register user', error: error.message });
+    // validations for all fields
+    if(!username.trim()){
+      return res.json({ error: "username must not be empty!"})
+    }
+    if(!email){
+      return res.json({ error: "Email must not be empty!"})
+    }
+    if(!password || password.length < 6){
+      return res.json({ error: "password must be at least 6 characters long!"})
+    }
+
+    // check if the user already exist
+    const userExist = await User.findOne({ email });
+
+    if(userExist){
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Register a new user
+    const user = new User({username, email, password: hashedPassword});
+
+    // Save the user in db
+    await user.save();
+
+    // remove pasword from res body
+    user.password = undefined;
+
+    // create token for new user
+    const secret =  process.env.JWT_SECRET
+    const token = jwt.sign({userId: user._id}, secret, {expiresIn: "7d"})
+    console.log("JWT_SECRET: ", secret);
+  
+    // send a notification
+    res.status(201).json({message: 'User registered successfully', user, token});
+
+  }catch(err){
+    res.status(500).json({message: "User registration failed", error: err.message});
   }
 };
 
-module.exports = {
+export = {
   registerUser,
-  // Add other user controller functions here
+  // Add other controller functions
 };
 
 ```
@@ -175,58 +216,79 @@ module.exports = {
 #### Blog Controller (`blogController.js`)
 
 ```JavaScript
-const { validationResult } = require('express-validator');
-const cloudinary = require('../services/blogConfig');
-const Blog = require('../models/Blog');
-const User = require('../models/User');
+import { cloudinary } from '../services/cloudinaryConfig.js';
+import Blog from '../models/Blog.js';
+import User from '../models/User.js';
 
-// Create a new blog post with validation
-const createBlog = [
-  // Define validation rules using Express Validator
-  body('title').notEmpty().withMessage('Title is required'),
-  body('content').notEmpty().withMessage('Content is required'),
-  body('author').notEmpty().withMessage('Author is required'),
 
-  async (req, res) => {
-    const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+// Create a new blog post
+const createBlog = async (req, res) => {
+  try {
+    const { title, content, author } = req.body;
+    const imageFile = req.file;
+
+    // Find the user by their username
+    const user = await User.findOne({ username: author });
+
+    if (!user) {
+      return res.status(400).json({ message: 'You must log in to create a blog' });
     }
 
-    try {
-      // Your createBlog logic here (including image upload to Cloudinary)
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to create a blog', error: error.message });
+    // Upload the image to Cloudinary
+    const imageResult = await cloudinary.uploader.upload(imageFile.path);
+
+    const blog = new Blog({
+      title,
+      content,
+      author: user.username,
+      image: imageResult.secure_url,
+    });
+
+    // Save the new blog to the database
+    await blog.save();
+
+    res.status(201).json({ message: 'Blog created successfully', blog });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create a blog', error: error.message });
+  }
+};
+
+const updateBlog = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const updatedBlogData = req.body;
+    const imageFile = req.file;
+
+    const existingBlog = await Blog.findById(_id);
+
+    if (!existingBlog) {
+      return res.status(404).json({ message: 'Blog not found' });
     }
-  },
-];
 
-// Update a blog post with validation
-const updateBlog = [
-  param('_id').notEmpty().withMessage('Blog ID is required'),
-  body('title').notEmpty().withMessage('Title is required'),
-  body('content').notEmpty().withMessage('Content is required'),
-
-  async (req, res) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    if (imageFile) {
+      const imageResult = await cloudinary.uploader.upload(imageFile.path);
+      existingBlog.imageUrl = imageResult.secure_url;
     }
 
-    try {
-      // Your updateBlog logic here (including image update to Cloudinary)
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to update blog', error: error.message });
-    }
-  },
-];
+    existingBlog.title = updatedBlogData.title || existingBlog.title;
+    existingBlog.content = updatedBlogData.content || existingBlog.content;
 
-module.exports = {
+    const updatedBlog = await existingBlog.save();
+
+    res.json({ message: 'Blog updated successfully', blog: updatedBlog });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update blog', error: error.message });
+  }
+};
+
+
+
+
+export {
   createBlog,
   updateBlog,
-  // Add other blog controller functions here
+  // Add other blog controller functions here ...
 };
 
 ```
@@ -244,10 +306,8 @@ Test your API endpoints using Postman or any API testing tool. Ensure that you c
 
 To host your API on Render, create a new Render service, connect your project's GitHub repository, and set up your deployment configuration. Ensure that environment variables (e.g., Cloudinary credentials) are securely stored on Render.
 
-By following these steps and using the provided code examples in my <a href="https://github.com/Blard-omu/Node-Blog-api.git">repo</a>, you can effectively set up and deploy your Node.js blog API.
+By following these steps and using the provided code examples in my <a href="https://github.com/Blard-omu/Node-Blog-api.git">repo</a>, you can effectively set up and deploy your Node.js blog application.
 
 ---
 
-Feel free to customize the documentation further to include any specific setup or usage instructions for your project.
-
-I am <a href="https://github.com/Blard-omu">BLARD</a>, a Fullstack Developer and coding instructor at <a href="https://www.techstudioacademy.com/">Techstudioacademy</a>
+I am <a href="https://github.com/Blard-omu">BLARD</a>, a Fullstack Developer and Instructor at <a href="https://www.techstudioacademy.com/">Techstudioacademy</a>

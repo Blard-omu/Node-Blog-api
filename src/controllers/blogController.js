@@ -171,5 +171,31 @@ const searchBlog = async (req, res) => {
 };
 
 
+const editState = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const { state } = req.body;
+    console.log('Received body:', req.body);
 
-export { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog, searchBlog };
+    if (!['draft', 'published'].includes(state)) {
+      return res.status(400).json({ error: 'Invalid state value' });
+    }
+    const blog = await Blog.findById( _id );
+
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    blog.state = state
+
+    await blog.save();
+
+    res.status(200).json({ message: 'Blog state updated successfully', blog });
+  } catch (error) {
+    console.error('Error updating blog state:', error);
+    res.status(500).json({ error: 'Failed to update blog state', errorMsg: error.message });
+  }
+};
+
+
+export { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog, searchBlog, editState };
