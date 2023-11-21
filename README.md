@@ -66,9 +66,12 @@ Node-Blog-api/
 In your `index.js` file, set up the Express server:
 
 ```javascript
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import blogRouter from "./src/routes/blogRoutes.js";
+import authRouter from "./src/routes/authRoutes.js";
+import userRouter from "./src/routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -108,8 +111,6 @@ API_SECRET=your-cloudinary-api-secret
 #### User Schema (`User.js`)
 
 ```javascript
-// const mongoose = require("mongoose");
-// const bcrypt = require("bcrypt");
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
@@ -132,7 +133,6 @@ export { User };
 #### Blog Schema (`Blog.js`)
 
 ```javascript
-// const mongoose = require('mongoose');
 import mongoose from "mongoose";
 
 const blogSchema = new mongoose.Schema({
