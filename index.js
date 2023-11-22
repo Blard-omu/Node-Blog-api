@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve Swagger UI at /api-docs
-app.use('/', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
 
 
 // google oAuth
@@ -68,16 +68,7 @@ app.get('/profile', (req, res) => {
   }
 });
 
-
-
-
-
-
 // console.log("Session secret: ", process.env.GOOGLE_SESSION_SECRET);
-
-
-
-
 
 const port = process.env.PORT || 3000;
 const dbURL = process.env.MONGODB_CONNECTION_URL;
