@@ -42,12 +42,12 @@ const apiDocumentation = {
   },
   servers: [
     {
-      url: "http://localhost:8080/",
-      description: "Development Server",
-    },
-    {
       url: "https://blogg-api-v1.onrender.com/",
       description: "Production Server",
+    },
+    {
+      url: "http://localhost:8080/",
+      description: "Dev Server",
     },
   ],
   tags: [
