@@ -18,7 +18,7 @@ const app = express();
 dotenv.config();
 
 let corsOptions = { 
-  origin : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', "https://blogg-api-v1.onrender.com", "https://blogg-fullstack-byzyd47md-blard-omu.vercel.app"], 
+  origin : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', "https://blogg-api-v1.onrender.com", "https://blogg-fullstack.vercel.app"], 
 } 
 
 // rate limit
