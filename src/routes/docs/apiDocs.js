@@ -46,7 +46,7 @@ const apiDocumentation = {
       description: "Development Server",
     },
     {
-      url: "https://node-july-api.onrender.com/",
+      url: "https://blogg-api-v1.onrender.com/",
       description: "Production Server",
     },
   ],
