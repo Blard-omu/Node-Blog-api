@@ -75,7 +75,7 @@ const getAllBlogs = async (req, res) => {
   }
 };
 
-// Get a specific blog post by ID
+// Get a blog post by ID
 const getBlogById = async (req, res) => {
   try { 
     const { _id } = req.params;
@@ -151,15 +151,18 @@ const deleteBlog = async (req, res) => {
 
 const searchBlog = async (req, res) => {
   const { term } = req.query;
-
   try {
-    // For case insensitive
     const searchRegex = new RegExp(term, 'i');
 
     const blogs = await Blog.find({
-      $or: [
-        { author: searchRegex },
-        { title: searchRegex },
+      $and: [
+        { state: 'published' }, // Only published blog can be searchable
+        {
+          $or: [
+            { author: searchRegex },
+            { title: searchRegex },
+          ],
+        },
       ],
     });
 

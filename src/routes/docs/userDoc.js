@@ -24,6 +24,10 @@ const userResponseWithRole = {
     type: "string",
     example: "2021-03-20T21:23:10.879Z",
   },
+  token: {
+    typeof: "string",
+    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTNmODkyZTVjNTU2YzQ5NDg5MTU2NmEiLCJpYXQiOjE3MDA1NTgxMTQsImV4cCI6MTcwMTE2MjkxNH0.fC5h6_ofCjLHYs0kkZXDE4MidsR4K4jYYt9iC0AgBhw"
+  }
 };
 
 const internalServerError = {
@@ -96,7 +100,6 @@ const createUserBody = {
     },
     password: {
       type: "string",
-      description: "unencrypted user's password",
       example: "password",
     },
   },
@@ -110,9 +113,22 @@ const loginUserBody = {
     },
     password: {
       type: "string",
-      description: "unencrypted user's password",
-      example: "442893aba778ab321dc151d9b1ad98c64ed56c07f8cbaed",
+      example: "password",
     },
+  },
+};
+const loginUserSocialBody = {
+  type: "object",
+  properties: {
+    description: {
+      type: "string",
+      example: "A valid gmail account required for social logging",
+    },
+    email: {
+      type: "string",
+      example: "john.snow@gmail.com",
+    },
+    
   },
 };
 
@@ -122,6 +138,11 @@ const updateUserBody = {
     username: {
       type: "string",
       example: "John Snow",
+    },
+  password: {
+      type: "string",
+      description: "change your password",
+      example: "new password",
     },
   },
 };
@@ -167,6 +188,7 @@ const createUser = {
               },
               password: {
                 type: "string",
+                description: "encrypted password",
                 example: "442893aba778ab321dc151d9b1ad98c64ed56c07f8cbaed",
               },
 
@@ -177,6 +199,11 @@ const createUser = {
               updatedAt: {
                 type: "string",
                 example: "2021-03-20T21:23:10.879Z",
+              },
+              token: {
+                type: "string",
+                example:
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTNmODkyZTVjNTU2YzQ5NDg5MTU2NmEiLCJpYXQiOjE3MDA1NTgxMTQsImV4cCI6MTcwMTE2MjkxNH0.fC5h6_ofCjLHYs0kkZXDE4MidsR4K4jYYt9iC0AgBhw",
               },
             },
           },
@@ -229,16 +256,8 @@ const loginUser = {
               },
               password: {
                 type: "string",
+                description: "encrypted password",
                 example: "442893aba778ab321dc151d9b1ad98c64ed56c07f8cbaed",
-              },
-
-              createdAt: {
-                type: "string",
-                example: "2021-03-20T19:40:59.495Z",
-              },
-              updatedAt: {
-                type: "string",
-                example: "2021-03-20T21:23:10.879Z",
               },
               token: {
                 type: "string",
@@ -424,4 +443,5 @@ export {
   getUser,
   updateUserBody,
   updateUser,
+  loginUserSocialBody,
 };
