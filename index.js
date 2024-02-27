@@ -55,7 +55,7 @@ app.use(passport.session());
 app.use('/', userRouter); 
 app.use('/', authRouter); 
 app.use('/auth', authRouter); 
-app.use('/', blogsApiLimiter, blogRouter);
+app.use('/', blogRouter);
 
 
 // After app.use(passport.initialize()) and app.use(passport.session())
