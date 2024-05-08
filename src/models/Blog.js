@@ -9,7 +9,7 @@ const blogSchema = new mongoose.Schema({
     author: {type: String},
     imageUrl: {type: String},
     tags: {type: [String], default: [""]},
-    read_time: {type: Number},
+    read_time: {type: Number, default: 1},
     published_time: {type: String},
 },
 {timestamps: true})

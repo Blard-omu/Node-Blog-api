@@ -16,8 +16,14 @@ const createBlog = async (req, res) => {
       return res.status(400).json({ error: 'You must log in to create a blog' });
     }
 
+    let imageUrl = "";
+    if (imageFile) {
+      const imageResult = await cloudinary.uploader.upload(imageFile.path);
+      imageUrl = imageResult.secure_url;
+    }
+
     // Upload the image to Cloudinary
-    const imageResult = await cloudinary.uploader.upload(imageFile.path);
+    // const imageResult = await cloudinary.uploader.upload(imageFile.path);
 
     // Calculate read time using the provided function
     const readTime = calculateReadingTime(content);
@@ -29,7 +35,7 @@ const createBlog = async (req, res) => {
       title,
       content,
       author: user.username, 
-      imageUrl: imageResult.secure_url,
+      imageUrl,
       read_time: readTime,
       tags: blogTags,
       category
