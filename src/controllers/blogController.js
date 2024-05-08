@@ -44,7 +44,7 @@ const createBlog = async (req, res) => {
     // Save the new blog to the database
     await blog.save();
 
-    res.status(201).json({ message: 'Blog created successfully', blog });
+    res.status(201).json({success: true, message: 'Blog created successfully', blog });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create a blog', errorMsg: error.message });
   }
