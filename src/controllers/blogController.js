@@ -17,9 +17,15 @@ const createBlog = async (req, res) => {
     }
 
     let imageUrl = "";
-    if (imageFile) {
-      const imageResult = await cloudinary.uploader.upload(imageFile.path);
-      imageUrl = imageResult.secure_url;
+    try {
+      if (imageFile) {
+        const imageResult = await cloudinary.uploader.upload(imageFile.path);
+        imageUrl = imageResult.secure_url;
+      }
+      console.log("Image Upload Successful");
+    } catch (error) {
+      console.log("Error uploading image");
+      res.status(500).json({ error: 'Failed to Upload image', errorMsg: error.message });
     }
 
     // Upload the image to Cloudinary
@@ -35,7 +41,7 @@ const createBlog = async (req, res) => {
       title,
       content,
       author: user.username, 
-      imageUrl,
+      imageUrl: imageUrl,
       read_time: readTime,
       tags: blogTags,
       category
