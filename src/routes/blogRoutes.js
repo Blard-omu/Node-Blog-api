@@ -10,7 +10,6 @@ const router = express.Router();
 router.post('/create', requireSignedIn,  upload.single('imageUrl'), createBlog);
 // Endpoint to get all blogs (Read)
 router.get('/blogs/all', getAllBlogs);
-
 // Endpoint to get a specific blog by _id (Read)
 router.get('/blog/:_id', getBlogById);
 

@@ -42,7 +42,7 @@ const createBlog = async (req, res) => {
     });
 
     // Save the new blog to the database
-    await blog.save();
+    // await blog.save();
 
     res.status(201).json({success: true, message: 'Blog created successfully', blog });
   } catch (error) {
@@ -109,10 +109,7 @@ const updateBlog = async (req, res) => {
       return res.status(404).json({ error: 'Blog not found' });
     }
 
-    // Check if the current user is the author of the blog
-    if (req.user.username !== existingBlog.author) {
-      return res.status(403).json({ error: 'You are not authorized' });
-    }
+    
 
     if (imageFile) {
       const imageResult = await cloudinary.uploader.upload(imageFile.path);
