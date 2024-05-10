@@ -42,7 +42,7 @@ const createBlog = async (req, res) => {
     });
 
     // Save the new blog to the database
-    // await blog.save();
+    await blog.save();
 
     res.status(201).json({success: true, message: 'Blog created successfully', blog });
   } catch (error) {
