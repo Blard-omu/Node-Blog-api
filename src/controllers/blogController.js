@@ -28,9 +28,7 @@ const createBlog = async (req, res) => {
       res.status(500).json({ error: 'Failed to Upload image', errorMsg: error.message });
     }
 
-    // Upload the image to Cloudinary
-    // const imageResult = await cloudinary.uploader.upload(imageFile.path);
-
+  
     // Calculate read time using the provided function
     const readTime = calculateReadingTime(content);
 
